@@ -3,6 +3,7 @@
 namespace WordPressdotorg\Theme\News_2021;
 
 use WP_Query;
+use function WordPressdotorg\MU_Plugins\Global_Fonts\get_font_stylesheet_url;
 
 defined( 'WPINC' ) || die();
 
@@ -72,7 +73,7 @@ function editor_styles() {
 	// Enqueue editor styles.
 	add_editor_style(
 		array(
-			fonts_url(),
+			get_font_stylesheet_url(),
 			get_stylesheet_uri(),
 		)
 	);
@@ -82,47 +83,7 @@ function editor_styles() {
  * Enqueue scripts and styles.
  */
 function enqueue_assets() {
-	// Enqueue Google fonts
-	wp_enqueue_style( 'wporg-news-fonts', fonts_url(), array(), null ); // phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion
-	wp_enqueue_style( 'wporg-news-style', get_stylesheet_uri(), array(), wp_get_theme()->get( 'Version' ) );
-}
-
-/**
- * Add Google webfonts.
- *
- * @return string $fonts_url
- */
-function fonts_url() {
-	if ( ! class_exists( '\WP_Theme_JSON_Resolver' ) ) {
-		return '';
-	}
-
-	$theme_data = \WP_Theme_JSON_Resolver::get_merged_data()->get_settings();
-	if ( empty( $theme_data ) || empty( $theme_data['typography'] ) || empty( $theme_data['typography']['fontFamilies'] ) ) {
-		return '';
-	}
-
-	$font_families = [];
-	if ( ! empty( $theme_data['typography']['fontFamilies']['theme'] ) ) {
-		foreach ( $theme_data['typography']['fontFamilies']['theme'] as $font ) {
-			if ( ! empty( $font['google'] ) ) {
-				$font_families[] = $font['google'];
-			}
-		}
-	}
-
-	if ( ! empty( $theme_data['typography']['fontFamilies']['user'] ) ) {
-		foreach ( $theme_data['typography']['fontFamilies']['user'] as $font ) {
-			if ( ! empty( $font['google'] ) ) {
-				$font_families[] = $font['google'];
-			}
-		}
-	}
-
-	$font_families[] = 'display=swap';
-
-	// Make a single request for the theme fonts.
-	return esc_url_raw( 'https://fonts.googleapis.com/css2?' . implode( '&', $font_families ) );
+	wp_enqueue_style( 'wporg-news-style', get_stylesheet_uri(), array( 'wporg-global-fonts' ), wp_get_theme()->get( 'Version' ) );
 }
 
 /**
